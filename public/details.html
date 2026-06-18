@@ -1,0 +1,314 @@
+```html
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maelezo Binafsi</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#ececec;
+}
+
+.header{
+    background:#003da5;
+    height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:fixed;
+    width:100%;
+    top:0;
+    z-index:1000;
+}
+
+.back-link{
+    position:absolute;
+    left:20px;
+    color:#d8d8d8;
+    text-decoration:none;
+    font-size:16px;
+}
+
+.menu{
+    position:absolute;
+    right:20px;
+    color:#d8d8d8;
+    font-size:28px;
+}
+
+.logo{
+    color:#ffd500;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.container{
+    max-width:620px;
+    margin:110px auto;
+    padding:0 15px;
+}
+
+.card{
+    background:white;
+    border-radius:16px;
+    padding:30px;
+    box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+
+.title{
+    text-align:center;
+    color:#1f2947;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.subtitle{
+    text-align:center;
+    color:#888;
+    margin-top:8px;
+}
+
+.progress{
+    display:flex;
+    gap:10px;
+    margin:20px 0 30px;
+}
+
+.step{
+    flex:1;
+    height:5px;
+    background:#d9d9d9;
+    border-radius:5px;
+}
+
+.step.active{
+    background:#f1d000;
+}
+
+.row{
+    display:flex;
+    gap:15px;
+}
+
+.form-group{
+    flex:1;
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-bottom:8px;
+    color:#444;
+    font-weight:500;
+}
+
+input{
+    width:100%;
+    border:1px solid #d8d8d8;
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:16px;
+    outline:none;
+}
+
+.phone-wrapper{
+    display:flex;
+    border:1px solid #d8d8d8;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.country-code{
+    background:#f7f7f7;
+    padding:14px 16px;
+    border-right:1px solid #d8d8d8;
+    color:#555;
+}
+
+.phone-input{
+    border:none;
+    border-radius:0;
+}
+
+.note{
+    margin-top:8px;
+    color:#888;
+    font-size:14px;
+}
+
+.buttons{
+    display:flex;
+    gap:15px;
+    margin-top:20px;
+}
+
+.btn-back{
+    flex:1;
+    background:#d9d9d9;
+    color:#555;
+    border:none;
+    border-radius:10px;
+    padding:16px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.btn-next{
+    flex:1;
+    background:#004fc5;
+    color:white;
+    border:none;
+    border-radius:10px;
+    padding:16px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+@media(max-width:600px){
+
+.row{
+    flex-direction:column;
+    gap:0;
+}
+
+.buttons{
+    flex-direction:column;
+}
+
+.card{
+    padding:20px;
+}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+
+    <a href="form.html" class="back-link">
+        ← Back
+    </a>
+
+    <div class="logo">
+        Mixx by Yas
+    </div>
+
+    <div class="menu">
+        ☰
+    </div>
+
+</header>
+
+<div class="container">
+
+    <div class="card">
+
+        <h2 class="title">Ombi la Mkopo</h2>
+
+        <p class="subtitle">
+            Hatua ya 2 kati ya 3
+        </p>
+
+        <div class="progress">
+            <div class="step active"></div>
+            <div class="step active"></div>
+            <div class="step"></div>
+        </div>
+
+        <form id="detailsForm">
+
+            <div class="row">
+
+                <div class="form-group">
+                    <label>Jina la Kwanza</label>
+                    <input
+                        type="text"
+                        placeholder="Jina la Kwanza"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Jina la Mwisho</label>
+                    <input
+                        type="text"
+                        placeholder="Jina la Mwisho"
+                        required>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Nambari ya Simu</label>
+
+                <div class="phone-wrapper">
+
+                    <div class="country-code">
+                        +255
+                    </div>
+
+                    <input
+                        type="tel"
+                        class="phone-input"
+                        placeholder="712345678 au 0712345678"
+                        required>
+
+                </div>
+
+                <div class="note">
+                    Weka tarakimu 9 au anza na 0
+                    (mfano, 0712345678 →
+                    inabadilishwa kiotomatiki kuwa
+                    712345678)
+                </div>
+
+            </div>
+
+            <div class="buttons">
+
+                <button
+                    type="button"
+                    class="btn-back"
+                    onclick="window.location.href='form.html'">
+                    NYUMA
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-next">
+                    HATUA INAYOFUATA
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+document.getElementById("detailsForm")
+.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    window.location.href = "pin.html";
+
+});
+</script>
+
+</body>
+</html>
+```

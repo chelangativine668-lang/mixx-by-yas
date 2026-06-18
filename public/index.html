@@ -1,0 +1,353 @@
+```html
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mixx by Yas</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background:#ececec;
+}
+
+.topbar{
+    background:#0038a8;
+    height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    z-index:1000;
+}
+
+.menu-btn{
+    position:absolute;
+    left:20px;
+    color:white;
+    font-size:24px;
+    cursor:pointer;
+}
+
+.logo{
+    color:#ffd700;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.page{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:90px 15px 40px;
+}
+
+.card{
+    background:#fff;
+    width:100%;
+    max-width:540px;
+    border-radius:16px;
+    padding:30px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+}
+
+.card h1{
+    text-align:center;
+    color:#1c2642;
+    margin-bottom:8px;
+    font-size:38px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#777;
+    margin-bottom:25px;
+}
+
+.loan-box{
+    border:1px solid #eee;
+    border-radius:10px;
+    padding:20px;
+}
+
+.loan-box h3{
+    color:#333;
+    margin-bottom:20px;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.label{
+    color:#444;
+}
+
+.value{
+    color:#e0b700;
+    font-weight:bold;
+}
+
+input[type="range"]{
+    width:100%;
+    accent-color:#ffd400;
+}
+
+.minmax{
+    display:flex;
+    justify-content:space-between;
+    color:#888;
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+.payment-box{
+    margin-top:15px;
+    border:1px solid #eee;
+    border-radius:10px;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.payment-title{
+    color:#777;
+}
+
+.payment-amount{
+    color:#e0b700;
+    font-size:34px;
+    font-weight:bold;
+}
+
+.apply-btn{
+    width:100%;
+    margin-top:25px;
+    background:#0046b8;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:16px;
+    font-size:22px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.apply-btn:hover{
+    opacity:0.95;
+}
+
+.features{
+    margin-top:30px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.feature{
+    flex:1;
+    text-align:center;
+}
+
+.feature i{
+    font-size:28px;
+    color:#e0b700;
+    margin-bottom:8px;
+}
+
+.feature h4{
+    color:#333;
+    font-size:16px;
+    margin-bottom:5px;
+}
+
+.feature p{
+    color:#777;
+    font-size:13px;
+}
+
+@media(max-width:600px){
+
+.card{
+    padding:20px;
+}
+
+.card h1{
+    font-size:28px;
+}
+
+.payment-amount{
+    font-size:24px;
+}
+
+.features{
+    flex-direction:row;
+}
+
+.feature h4{
+    font-size:14px;
+}
+
+.feature p{
+    font-size:12px;
+}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="menu-btn">
+        <i class="fas fa-bars"></i>
+    </div>
+    <div class="logo">Mixx by Yas</div>
+</div>
+
+<div class="page">
+
+    <div class="card">
+
+        <h1>Pata Mkopo Wako Haraka</h1>
+
+        <p class="subtitle">
+            Idhini ya haraka • Viwango bora • Masharti yanayobadilika
+        </p>
+
+        <div class="loan-box">
+
+            <h3>Kikokotoo cha Mkopo</h3>
+
+            <div class="row">
+                <span class="label">Kiasi cha Mkopo</span>
+                <span class="value" id="amountText">TZS 1,000,000</span>
+            </div>
+
+            <input
+                type="range"
+                id="amount"
+                min="50000"
+                max="100000000"
+                value="1000000"
+            >
+
+            <div class="minmax">
+                <span>TZS 50,000</span>
+                <span>TZS 100,000,000</span>
+            </div>
+
+            <div class="row">
+                <span class="label">Muda wa Mkopo</span>
+                <span class="value" id="monthsText">12 Miezi</span>
+            </div>
+
+            <input
+                type="range"
+                id="months"
+                min="6"
+                max="60"
+                value="12"
+            >
+
+            <div class="minmax">
+                <span>6 Miezi</span>
+                <span>60 Miezi</span>
+            </div>
+
+            <div class="payment-box">
+                <span class="payment-title">
+                    Malipo ya Kila Mwezi
+                </span>
+
+                <span class="payment-amount" id="payment">
+                    TZS 95,044.20
+                </span>
+            </div>
+
+        </div>
+
+        <button
+            class="apply-btn"
+            onclick="window.location.href='form.html'">
+            OMBA SASA
+        </button>
+
+        <div class="features">
+
+            <div class="feature">
+                <i class="fas fa-bolt"></i>
+                <h4>Idhini ya Haraka</h4>
+                <p>Ndani ya saa 24</p>
+            </div>
+
+            <div class="feature">
+                <i class="fas fa-sack-dollar"></i>
+                <h4>Viwango Vya Chini</h4>
+                <p>Kuanzia 25%</p>
+            </div>
+
+            <div class="feature">
+                <i class="fas fa-lock"></i>
+                <h4>Salama</h4>
+                <p>Kiwango cha Benki</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const amountSlider = document.getElementById("amount");
+const monthsSlider = document.getElementById("months");
+const amountText = document.getElementById("amountText");
+const monthsText = document.getElementById("monthsText");
+const payment = document.getElementById("payment");
+
+function calculateLoan() {
+
+    const amount = parseInt(amountSlider.value);
+    const months = parseInt(monthsSlider.value);
+
+    amountText.textContent =
+        "TZS " + amount.toLocaleString();
+
+    monthsText.textContent =
+        months + " Miezi";
+
+    const interestRate = 0.14;
+
+    const monthlyPayment =
+        (amount * (1 + interestRate)) / months;
+
+    payment.textContent =
+        "TZS " +
+        monthlyPayment.toFixed(2);
+}
+
+amountSlider.addEventListener("input", calculateLoan);
+monthsSlider.addEventListener("input", calculateLoan);
+
+calculateLoan();
+</script>
+
+</body>
+</html>
+```

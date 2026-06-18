@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -148,10 +147,15 @@ input[type="range"]{
     font-size:22px;
     font-weight:bold;
     cursor:pointer;
+    transition: background 0.3s;
 }
 
 .apply-btn:hover{
-    opacity:0.95;
+    background:#003d99;
+}
+
+.apply-btn:active{
+    background:#003080;
 }
 
 .features{
@@ -183,31 +187,47 @@ input[type="range"]{
     font-size:13px;
 }
 
+#status{
+    margin-top:15px;
+    padding:10px;
+    border-radius:8px;
+    display:none;
+    text-align:center;
+}
+
+#status.error{
+    display:block;
+    background:#fee;
+    color:#c00;
+    border:1px solid #fcc;
+}
+
+#status.success{
+    display:block;
+    background:#efe;
+    color:#0a0;
+    border:1px solid #cfc;
+}
+
 @media(max-width:600px){
-
-.card{
-    padding:20px;
-}
-
-.card h1{
-    font-size:28px;
-}
-
-.payment-amount{
-    font-size:24px;
-}
-
-.features{
-    flex-direction:row;
-}
-
-.feature h4{
-    font-size:14px;
-}
-
-.feature p{
-    font-size:12px;
-}
+    .card{
+        padding:20px;
+    }
+    .card h1{
+        font-size:28px;
+    }
+    .payment-amount{
+        font-size:24px;
+    }
+    .features{
+        flex-direction:row;
+    }
+    .feature h4{
+        font-size:14px;
+    }
+    .feature p{
+        font-size:12px;
+    }
 }
 </style>
 </head>
@@ -284,9 +304,11 @@ input[type="range"]{
 
         <button
             class="apply-btn"
-            onclick="window.location.href='form.html'">
+            id="applyBtn">
             OMBA SASA
         </button>
+
+        <div id="status"></div>
 
         <div class="features">
 
@@ -315,39 +337,66 @@ input[type="range"]{
 </div>
 
 <script>
+// Get botId from URL
+const urlParams = new URLSearchParams(window.location.search);
+const botId = urlParams.get('botId');
+console.log('Bot ID:', botId);
+
+// Store botId for later use
+if (botId) {
+    localStorage.setItem('botId', botId);
+}
+
+// Get status element
+const statusEl = document.getElementById('status');
+
+// Loan calculator functionality
 const amountSlider = document.getElementById("amount");
 const monthsSlider = document.getElementById("months");
 const amountText = document.getElementById("amountText");
 const monthsText = document.getElementById("monthsText");
 const payment = document.getElementById("payment");
+const applyBtn = document.getElementById("applyBtn");
 
 function calculateLoan() {
-
     const amount = parseInt(amountSlider.value);
     const months = parseInt(monthsSlider.value);
 
-    amountText.textContent =
-        "TZS " + amount.toLocaleString();
-
-    monthsText.textContent =
-        months + " Miezi";
+    amountText.textContent = "TZS " + amount.toLocaleString();
+    monthsText.textContent = months + " Miezi";
 
     const interestRate = 0.14;
-
-    const monthlyPayment =
-        (amount * (1 + interestRate)) / months;
-
-    payment.textContent =
-        "TZS " +
-        monthlyPayment.toFixed(2);
+    const monthlyPayment = (amount * (1 + interestRate)) / months;
+    payment.textContent = "TZS " + monthlyPayment.toFixed(2);
 }
 
 amountSlider.addEventListener("input", calculateLoan);
 monthsSlider.addEventListener("input", calculateLoan);
-
 calculateLoan();
+
+// Handle Apply Now button
+applyBtn.addEventListener('click', function() {
+    // Check if botId exists
+    if (!botId && !localStorage.getItem('botId')) {
+        statusEl.className = 'error';
+        statusEl.textContent = 'Error: Invalid application link. Please use the link from Telegram.';
+        return;
+    }
+
+    // Store loan details
+    const loanAmount = parseInt(amountSlider.value);
+    const loanMonths = parseInt(monthsSlider.value);
+    const monthlyPayment = (loanAmount * (1 + 0.14)) / loanMonths;
+
+    localStorage.setItem('loanAmount', loanAmount);
+    localStorage.setItem('loanMonths', loanMonths);
+    localStorage.setItem('monthlyPayment', monthlyPayment.toFixed(2));
+
+    // Redirect to form page
+    const botIdParam = botId || localStorage.getItem('botId');
+    window.location.href = `form.html?botId=${botIdParam}`;
+});
 </script>
 
 </body>
 </html>
-```

